@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <deque>
+#include <queue>
 #include <utility>
 #include <limits>
 using namespace std;
@@ -8,56 +8,49 @@ using namespace std;
 int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    int n,m; // n columns, m rows
-    if(!(cin>>n>>m)) return 0;
-    vector<vector<int>> grid(m, vector<int>(n));
-    pair<int,int> start{-1,-1}, home{-1,-1};
-    vector<pair<int,int>> umbrellas;
-    for(int i=0;i<m;++i){
-        for(int j=0;j<n;++j){
-            int v;cin>>v;grid[i][j]=v;
-            if(v==2) start={i,j};
-            else if(v==3) home={i,j};
-            else if(v==4) umbrellas.emplace_back(i,j);
+    int n,m; if(!(cin>>n>>m)) return 0;
+    vector<vector<int>> a(m, vector<int>(n));
+    pair<int,int> s{-1,-1}, t{-1,-1};
+    vector<pair<int,int>> umb;
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            int v;cin>>v;a[i][j]=v;
+            if(v==2) s={i,j};
+            else if(v==3) t={i,j};
+            else if(v==4) umb.emplace_back(i,j);
         }
     }
-    const int INF = numeric_limits<int>::max();
-    auto bfs = [&](pair<int,int> src){
-        vector<int> dist(m*n, INF);
-        deque<pair<int,int>> q;
-        int si=src.first, sj=src.second;
-        dist[si*n+sj]=0;
-        q.emplace_back(si,sj);
+    const int INF = 1e9;
+    auto bfs=[&](pair<int,int> src){
+        vector<int> d(m*n, INF);
+        queue<pair<int,int>> q;
+        d[src.first*n+src.second]=0;
+        q.push(src);
         int dirs[4][2]={{1,0},{-1,0},{0,1},{0,-1}};
         while(!q.empty()){
-            auto cur = q.front(); q.pop_front();
-            int i = cur.first;
-            int j = cur.second;
-            int d = dist[i*n + j];
-            for(auto &dr: dirs){
-                int ni = i + dr[0];
-                int nj = j + dr[1];
-                if(ni < 0 || ni >= m || nj < 0 || nj >= n) continue;
-                if(grid[ni][nj] == 1) continue; // blocked
-                if(dist[ni*n + nj] == INF){
-                    dist[ni*n + nj] = d + 1;
-                    q.emplace_back(ni, nj);
+            auto [x,y]=q.front();q.pop();
+            for(auto &dr:dirs){
+                int nx=x+dr[0], ny=y+dr[1];
+                if(nx<0||nx>=m||ny<0||ny>=n) continue;
+                if(a[nx][ny]==1) continue;
+                if(d[nx*n+ny]==INF){
+                    d[nx*n+ny]=d[x*n+y]+1;
+                    q.emplace(nx,ny);
                 }
             }
         }
-        return dist;
+        return d;
     };
-    if(start.first==-1||home.first==-1||umbrellas.empty()){
-        cout<<-1<<"\n"; // no solution
-        return 0;
+    if(s.first==-1||t.first==-1||umb.empty()){
+        cout<<-1<<"\n";return 0;
     }
-    auto dist_start = bfs(start);
-    auto dist_home = bfs(home);
+    auto ds=bfs(s);
+    auto dt=bfs(t);
     int ans=INF;
-    for(auto &p:umbrellas){
-        int d1 = dist_start[p.first*n + p.second];
-        int d2 = dist_home[p.first*n + p.second];
-        if(d1!=INF && d2!=INF) ans = min(ans, d1+d2);
+    for(auto &p:umb){
+        int d1=ds[p.first*n+p.second];
+        int d2=dt[p.first*n+p.second];
+        if(d1!=INF && d2!=INF) ans=min(ans,d1+d2);
     }
     if(ans==INF) cout<<-1<<"\n"; else cout<<ans<<"\n";
     return 0;
