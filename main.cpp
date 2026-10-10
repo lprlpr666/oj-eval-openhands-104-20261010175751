@@ -2,7 +2,6 @@
 #include <vector>
 #include <deque>
 #include <utility>
-#include <limits>
 using namespace std;
 
 int main(){
@@ -21,7 +20,7 @@ int main(){
             else if(v==4) umbrellas.emplace_back(i,j);
         }
     }
-    const int INF = numeric_limits<int>::max();
+    const int INF = 1e9;
     auto bfs = [&](pair<int,int> src){
         vector<int> dist(m*n, INF);
         deque<pair<int,int>> q;
