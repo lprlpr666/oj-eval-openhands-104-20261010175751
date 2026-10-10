@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <deque>
+#include <utility>
+#include <limits>
 using namespace std;
 
 int main(){
@@ -17,7 +21,7 @@ int main(){
             else if(v==4) umbrellas.emplace_back(i,j);
         }
     }
-    const int INF = 1e9;
+    const int INF = numeric_limits<int>::max();
     auto bfs = [&](pair<int,int> src){
         vector<int> dist(m*n, INF);
         deque<pair<int,int>> q;
@@ -26,15 +30,18 @@ int main(){
         q.emplace_back(si,sj);
         int dirs[4][2]={{1,0},{-1,0},{0,1},{0,-1}};
         while(!q.empty()){
-            auto [i,j]=q.front();q.pop_front();
-            int d=dist[i*n+j];
-            for(auto &dr:dirs){
-                int ni=i+dr[0], nj=j+dr[1];
-                if(ni<0||ni>=m||nj<0||nj>=n) continue;
-                if(grid[ni][nj]==1) continue; // blocked
-                if(dist[ni*n+nj]==INF){
-                    dist[ni*n+nj]=d+1;
-                    q.emplace_back(ni,nj);
+            auto cur = q.front(); q.pop_front();
+            int i = cur.first;
+            int j = cur.second;
+            int d = dist[i*n + j];
+            for(auto &dr: dirs){
+                int ni = i + dr[0];
+                int nj = j + dr[1];
+                if(ni < 0 || ni >= m || nj < 0 || nj >= n) continue;
+                if(grid[ni][nj] == 1) continue; // blocked
+                if(dist[ni*n + nj] == INF){
+                    dist[ni*n + nj] = d + 1;
+                    q.emplace_back(ni, nj);
                 }
             }
         }
